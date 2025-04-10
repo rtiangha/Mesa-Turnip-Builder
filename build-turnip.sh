@@ -328,6 +328,10 @@ EOF
     echo $workdir/Turnip-25.0.3-EMULATOR.zip $'\n'
     echo -e "$green Build Finished :). $nocolor" $'\n'
 
+    # Copy Turnip files to GitHub Actions artifacts directory
+    mkdir -p $workdir/artifacts
+    cp $workdir/Turnip-*.zip $workdir/artifacts
+
     # Cleanup 
     rm "$DRIVER_FILE" "$META_FILE"
     
