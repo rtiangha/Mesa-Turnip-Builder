@@ -1,14 +1,40 @@
 #!/bin/bash -e
 
+# Fixed versions and configurations
+DROID_VER="13"
+API_VER="33"
+NDK_VER="28"
+export CFLAGS="$CFLAGS"
+export CXXFLAGS="$CXXFLAGS"
+
+# Version sets: MESA_VER PKG_VER DATE VULKAN_VER
+versions=(
+    "25.0.3 3 20250402 1.4.305"
+    "24.3.4 4 20250122 1.3.296"
+    "24.2.8 8 20241128 1.3.289"
+    "24.1.7 7 20240829 1.3.278"
+    "24.0.9 9 20240606 1.3.274"
+    "23.3.6 6 20240215 1.3.267"
+    "23.2.1 1 20230928 1.3.255"
+# The following won't build due to:
+#  Run-time dependency libdrm found: NO (tried pkgconfig)
+#  meson.build:1760:13: ERROR: Dependency "libdrm" not found, tried pkgconfig
+#    "23.1.9 9 20231004 1.3.246"
+#    "23.0.4 4 20230530 1.3.238"
+#    "22.3.7 7 20230308 1.3.230"
+#    "22.2.4 4 20221116 1.3.224"
+#    "22.1.7 7 20220922 1.3.211"
+#    "22.0.5 5 20220601 1.3.204"
+#    "21.3.9 9 20220608 1.2.195"
+#    "21.2.6 6 20211124 1.2.182"
+)
+
 # Required packages for building the turnip driver
 deps="meson ninja patchelf unzip curl pip flex bison zip"
 
-# Android NDK and Mesa version
-ndkver="https://dl.google.com/android/repository/android-ndk-r28-linux.zip"
-ndkdir="android-ndk-r28"
-
-mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-25.0.3/mesa-mesa-25.0.3.zip"
-mesadir="mesa-mesa-25.0.3"
+# Android NDK
+ndkver="https://dl.google.com/android/repository/android-ndk-r$NDK_VER-linux.zip"
+ndkdir="android-ndk-r$NDK_VER"
 
 # Colors for terminal output
 green='\033[0;32m'
@@ -18,9 +44,9 @@ nocolor='\033[0m'
 workdir="$(pwd)/turnip_workdir"
 magiskdir="$workdir/turnip_module"
 
+# Turnip variables
 DRIVER_FILE="vulkan.turnip.so"
 META_FILE="meta.json"
-ZIP_FILE="Turnip-25.0.3-EMULATOR.zip"
 
 clear
 
@@ -52,57 +78,70 @@ fi
 
 clear
 
-echo "Creating and entering the work directory..." $'\n'
-mkdir -p "$workdir" && cd "$_"
-
 # Download Android NDK
-echo "Downloading Android NDK..." $'\n'
+echo "Downloading Android NDK r$NDK_VER..." $'\n'
 curl $ndkver --output "$ndkdir".zip &> /dev/null
 
-clear
+# Loop through each version set
+for version in "${versions[@]}"; do
+    # Extract version values
+    read -r MESA_VER PKG_VER DATE VULKAN_VER <<< "$version"
 
-echo "Extracting Android NDK..." $'\n'
-unzip "$ndkdir".zip &> /dev/null
+    echo -e "${green}Building Mesa $MESA_VER...${nocolor}"
 
-# Download Mesa source
-echo "Downloading Latest Mesa source ..." $'\n'
-curl $mesaver --output "$mesadir".zip &> /dev/null
+    # Mesa
+    mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-$MESA_VER/mesa-mesa-$MESA_VER.zip"
+    mesadir="mesa-mesa-$MESA_VER"
+    ZIP_FILE="Turnip-$MESA_VER-EMULATOR.zip"
 
-clear
 
-echo "Extracting Mesa source..." $'\n'
-unzip "$mesadir".zip &> /dev/null
-cd $mesadir
+    echo "Creating and entering the work directory..." $'\n'
+    mkdir -p "$workdir" && cd "$_"
 
-# Set NDK Clang bin directory
-ndk_bin="$workdir/$ndkdir/toolchains/llvm/prebuilt/linux-x86_64/bin"
+    clear
 
-# Set toolchain variables
-export CC=clang
-export CXX=clang++
-export AR=llvm-ar
-export RANLIB=llvm-ranlib
-export STRIP=llvm-strip
-export OBJDUMP=llvm-objdump
-export OBJCOPY=llvm-objcopy
-export LDFLAGS="-fuse-ld=lld"
+    echo "Extracting Android NDK r$NDK_VER..." $'\n'
+    unzip "../$ndkdir".zip &> /dev/null
 
-# Create a temporary directory for fake cc/c++
-mkdir -p /tmp/fake-cc
+    # Download Mesa source
+    echo "Downloading Mesa $MESA_VER source ..." $'\n'
+    curl $mesaver --output "$mesadir".zip &> /dev/null
 
-# Create symbolic links to NDK-Clang
-ln -sf "$ndk_bin/clang" /tmp/fake-cc/cc
-ln -sf "$ndk_bin/clang++" /tmp/fake-cc/c++
+    clear
 
-# Prepend both fake-cc and NDK bin to PATH
-export PATH="/tmp/fake-cc:$ndk_bin:$PATH"
+    echo "Extracting Mesa $MESA_VER source..." $'\n'
+    unzip "$mesadir".zip &> /dev/null
+    cd $mesadir
 
-echo "Creating Meson cross file..." $'\n'
-cat <<EOF >"android-aarch64.txt"
+    # Set NDK r$NDK_VER Clang bin directory
+    ndk_bin="$workdir/$ndkdir/toolchains/llvm/prebuilt/linux-x86_64/bin"
+
+    # Set toolchain variables
+    export CC=clang
+    export CXX=clang++
+    export AR=llvm-ar
+    export RANLIB=llvm-ranlib
+    export STRIP=llvm-strip
+    export OBJDUMP=llvm-objdump
+    export OBJCOPY=llvm-objcopy
+    export LDFLAGS="-fuse-ld=lld"
+
+    # Create a temporary directory for fake cc/c++
+    mkdir -p /tmp/fake-cc
+
+    # Create symbolic links to NDK-Clang
+    ln -sf "$ndk_bin/clang" /tmp/fake-cc/cc
+    ln -sf "$ndk_bin/clang++" /tmp/fake-cc/c++
+
+    # Prepend both fake-cc and NDK bin to PATH
+    export PATH="/tmp/fake-cc:$ndk_bin:$PATH"
+
+    echo "Creating Meson cross file..." $'\n'
+    cat <<EOF >"android-aarch64.txt"
 [binaries]
 ar = '$ndk_bin/llvm-ar'
-c = ['ccache', '$ndk_bin/aarch64-linux-android33-clang']
-cpp = ['ccache', '$ndk_bin/aarch64-linux-android33-clang++', '--start-no-unused-arguments', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '--end-no-unused-arguments', '-Wno-error=c++11-narrowing']
+c = ['ccache', '$ndk_bin/aarch64-linux-android$API_VER-clang', '$CFLAGS']
+cpp = ['ccache', '$ndk_bin/aarch64-linux-android$API_VER-clang++', '--start-no-unused-arguments', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '--end-no-unused-arguments', '-Wno-error=c++11-narrowing', '$CXXFLAGS']
 c_ld = '$ndk_bin/ld.lld'
 cpp_ld = '$ndk_bin/ld.lld'
 strip = '$ndk_bin/aarch64-linux-android-strip'
@@ -130,23 +169,40 @@ endian = 'little'
 EOF
 
 echo "Generating build files..." $'\n'
-CC=clang CXX=clang++ meson setup build-android-aarch64 \
+
+# The fredreno-kmds flag does not exist in Mesa < 23.2.0
+if [ "$(printf "%s\n%s" "$MESA_VER" "23.2.0" | sort -V | head -n1)" != "23.2.0" ]; then
+CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-android-aarch64 \
     --cross-file "$workdir/$mesadir/android-aarch64.txt" \
     --native-file "$workdir/$mesadir/native.txt" \
     -Dbuildtype=release \
     -Dplatforms=android \
-    -Dplatform-sdk-version=33 \
+    -Dplatform-sdk-version=$API_VER \
+    -Dandroid-stub=true \
+    -Dgallium-drivers= \
+    -Dvulkan-drivers=freedreno \
+    -Db_lto=true \
+    -Degl=disabled \
+    -Dstrip=true &> $workdir/meson_log
+else
+CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-android-aarch64 \
+    --cross-file "$workdir/$mesadir/android-aarch64.txt" \
+    --native-file "$workdir/$mesadir/native.txt" \
+    -Dbuildtype=release \
+    -Dplatforms=android \
+    -Dplatform-sdk-version=$API_VER \
     -Dandroid-stub=true \
     -Dgallium-drivers= \
     -Dvulkan-drivers=freedreno \
     -Dfreedreno-kmds=kgsl \
     -Db_lto=true \
     -Degl=disabled \
-    -Dstrip=true &> $workdir/meson_log
+    -Dstrip=true
+fi
 
 # Compile build files using Ninja
 echo "Compiling build files..." $'\n'
-ninja -C build-android-aarch64 &> "$workdir"/ninja_log
+ninja -C build-android-aarch64 
 
 echo "Using patchelf to match .so name..." $'\n'
 cp "$workdir"/"$mesadir"/build-android-aarch64/src/freedreno/vulkan/libvulkan_freedreno.so "$workdir"
@@ -225,11 +281,11 @@ EOF
 cat <<EOF >"module.prop"
 id=turnip-mesa
 name=Freedreno Turnip Vulkan Driver
-version=v25.0.3
-versionCode=20250407
-author=V3KT0R-87
+version=v$MESA_VER
+versionCode=$DATE
+author=RTIANGHA
 description=Turnip is an open-source vulkan driver for devices with Adreno 6xx-7xx GPUs.
-updateJson=https://raw.githubusercontent.com/v3kt0r-87/Mesa-Turnip-Builder/refs/heads/stable/update.json
+updateJson=https://raw.githubusercontent.com/rtiangha/Mesa-Turnip-Builder/refs/heads/stable/update.json
 EOF
 
 cat <<EOF >"customize.sh"
@@ -240,7 +296,7 @@ ui_print ""
 ui_print "Version=\$MODVER "
 ui_print "MagiskVersion=\$MAGISK_VER"
 ui_print ""
-ui_print "Freedreno Turnip Vulkan Driver -V3KT0R"
+ui_print "Freedreno Turnip Vulkan Driver -RTIANGHA"
 ui_print "Adreno Driver Support Group - Telegram"
 ui_print ""
 sleep 1.25
@@ -249,7 +305,7 @@ ui_print ""
 ui_print "Checking Device info ..."
 sleep 1.25
 
-[ \$(getprop ro.system.build.version.sdk) -lt 33 ] && echo "Android 13 is required! Aborting ..." && abort
+[ \$(getprop ro.system.build.version.sdk) -lt $API_VER ] && echo "Android $DROID_VER is required! Aborting ..." && abort
 echo ""
 echo "Everything looks fine .... proceeding"
 ui_print ""
@@ -281,13 +337,13 @@ sleep 1.25
 ui_print ""
 ui_print "All done, Please REBOOT device"
 ui_print ""
-ui_print "BY: @VEKT0R_87"
+ui_print "BY: @RTIANGHA"
 ui_print ""
 EOF
 
 echo "Packing driver files into Magisk/KSU module ..." $'\n'
-zip -r $workdir/Turnip-25.0.3-MAGISK-KSU.zip * &> /dev/null
-if ! [ -a $workdir/Turnip-25.0.3-MAGISK-KSU.zip ]; then
+zip -r $workdir/Turnip-$MESA_VER-MAGISK-KSU.zip * &> /dev/null
+if ! [ -a $workdir/Turnip-$MESA_VER-MAGISK-KSU.zip ]; then
     echo -e "$red-Packing failed!$nocolor" && exit 1
 else
     clear
@@ -304,13 +360,13 @@ else
  cat <<EOF > "$META_FILE"
 {
   "schemaVersion": 1,
-  "name": "Freedreno Turnip Driver v25.0.3",
-  "description": "Compiled using Android NDK 28",
-  "author": "v3kt0r-87",
-  "packageVersion": "3",
+  "name": "Freedreno Turnip Driver v$MESA_VER",
+  "description": "Compiled using Android NDK r$NDK_VER with $CXXFLAGS",
+  "author": "rtiangha",
+  "packageVersion": "$PKG_VER",
   "vendor": "Mesa3D",
-  "driverVersion": "Vulkan 1.4",
-  "minApi": 33,
+  "driverVersion": "Vulkan $VULKAN_VER",
+  "minApi": $API_VER,
   "libraryName": "vulkan.turnip.so"
 }
 EOF
@@ -324,13 +380,13 @@ EOF
     clear
 
     echo -e "$green-All done, you can take your drivers from here;$nocolor" $'\n'
-    echo $workdir/Turnip-25.0.3-MAGISK-KSU.zip $'\n'
-    echo $workdir/Turnip-25.0.3-EMULATOR.zip $'\n'
+    echo $workdir/Turnip-$MESA_VER-MAGISK-KSU.zip $'\n'
+    echo $workdir/Turnip-$MESA_VER-EMULATOR.zip $'\n'
     echo -e "$green Build Finished :). $nocolor" $'\n'
 
     # Copy Turnip files to GitHub Actions artifacts directory
-    mkdir -p $workdir/artifacts
-    cp $workdir/Turnip-*.zip $workdir/artifacts
+    mkdir -p ../artifacts
+    cp $workdir/Turnip-*.zip ../artifacts
 
     # Cleanup 
     rm "$DRIVER_FILE" "$META_FILE"
@@ -339,4 +395,12 @@ EOF
     rm -rf /tmp/fake-cc/cc
     rm -rf /tmp/fake-cc/c++
     rm -rf /tmp/fake-cc
+
+    # Cleanup workdir
+    cd ..
+    rm -rf $workdir
 fi
+done
+
+echo -e "${green}All builds completed. Artifacts are in the artifacts directory.${nocolor}" $'\n'
+
