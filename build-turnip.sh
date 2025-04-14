@@ -1,11 +1,11 @@
 #!/bin/bash -e
 
 # Fixed versions and configurations
-DROID_VER="13"
-API_VER="33"
+DROID_VER="9"
+API_VER="28"
 NDK_VER="28"
-export CFLAGS="$CFLAGS"
-export CXXFLAGS="$CXXFLAGS"
+export CFLAGS="$CFLAGS -O3"
+export CXXFLAGS="$CXXFLAGS -O3"
 
 # Version sets: MESA_VER PKG_VER DATE VULKAN_VER
 versions=(
@@ -140,8 +140,8 @@ for version in "${versions[@]}"; do
     cat <<EOF >"android-aarch64.txt"
 [binaries]
 ar = '$ndk_bin/llvm-ar'
-c = ['ccache', '$ndk_bin/aarch64-linux-android$API_VER-clang', '$CFLAGS']
-cpp = ['ccache', '$ndk_bin/aarch64-linux-android$API_VER-clang++', '--start-no-unused-arguments', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '--end-no-unused-arguments', '-Wno-error=c++11-narrowing', '$CXXFLAGS']
+c = ['ccache', '$ndk_bin/aarch64-linux-android$API_VER-clang']
+cpp = ['ccache', '$ndk_bin/aarch64-linux-android$API_VER-clang++', '--start-no-unused-arguments', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '--end-no-unused-arguments', '-Wno-error=c++11-narrowing']
 c_ld = '$ndk_bin/ld.lld'
 cpp_ld = '$ndk_bin/ld.lld'
 strip = '$ndk_bin/aarch64-linux-android-strip'
