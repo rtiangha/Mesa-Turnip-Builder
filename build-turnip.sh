@@ -3,7 +3,7 @@
 # Fixed versions and configurations
 DROID_VER="9"
 API_VER="28"
-NDK_VER="28"
+NDK_VER="28b"
 export CFLAGS="$CFLAGS -O3"
 export CXXFLAGS="$CXXFLAGS -O3"
 
