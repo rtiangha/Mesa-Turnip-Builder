@@ -4,11 +4,15 @@
 DROID_VER="9"
 API_VER="28"
 NDK_VER="28b"
+DEV_VER=25.1
+ISODATE=$(date +"%Y%m%d")
 export CFLAGS="$CFLAGS -O3"
 export CXXFLAGS="$CXXFLAGS -O3"
 
 # Version sets: MESA_VER PKG_VER DATE VULKAN_VER
 versions=(
+    "DEVEL $DEV_VER staging-$DEV_VER 1.4"
+    "HEAD main $ISODATE 1.4"
     "25.0.4 4 20250417 1.4.305"
     "24.3.4 4 20250122 1.3.296"
     "24.2.8 8 20241128 1.3.289"
@@ -90,8 +94,17 @@ for version in "${versions[@]}"; do
     echo -e "${green}Building Mesa $MESA_VER...${nocolor}"
 
     # Mesa
-    mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-$MESA_VER/mesa-mesa-$MESA_VER.zip"
-    mesadir="mesa-mesa-$MESA_VER"
+    if [[ "$MESA_VER" == "HEAD" ]]; then
+        mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip"
+        mesadir="mesa-main"
+    elif [[ "$MESA_VER" == "DEVEL" ]]; then
+        mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/staging/$PKG_VER/mesa-staging-$PKG_VER.zip"
+        mesadir="mesa-staging-$PKG_VER"
+    else 
+        mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-$MESA_VER/mesa-mesa-$MESA_VER.zip"
+        mesadir="mesa-mesa-$MESA_VER"
+    fi
+
     ZIP_FILE="Turnip-$MESA_VER-EMULATOR.zip"
 
 
