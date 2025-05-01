@@ -13,7 +13,7 @@ export CXXFLAGS="$CXXFLAGS -O3"
 versions=(
     "DEVEL $DEV_VER staging-$DEV_VER 1.4"
     "HEAD main $ISODATE 1.4"
-    "25.0.4 4 20250417 1.4.305"
+    "25.0.5 5 20250430 1.4.305"
     "24.3.4 4 20250122 1.3.296"
     "24.2.8 8 20241128 1.3.289"
     "24.1.7 7 20240829 1.3.278"
