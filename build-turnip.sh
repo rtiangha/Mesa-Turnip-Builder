@@ -12,26 +12,26 @@ export CXXFLAGS="$CXXFLAGS -O3"
 # Version sets: MESA_VER PKG_VER DATE VULKAN_VER
 versions=(
     "DEVEL $DEV_VER staging-$DEV_VER 1.4"
-    "HEAD main $ISODATE 1.4"
-    "25.1.0 0 20250507 1.4.311"
-    "25.0.5 5 20250430 1.4.305"
-    "24.3.4 4 20250122 1.3.296"
-    "24.2.8 8 20241128 1.3.289"
-    "24.1.7 7 20240829 1.3.278"
-    "24.0.9 9 20240606 1.3.274"
-    "23.3.6 6 20240215 1.3.267"
-    "23.2.1 1 20230928 1.3.255"
+    "HEAD main $ISODATE"
+    "25.1.0 0 20250507"
+    "25.0.5 5 20250430"
+    "24.3.4 4 20250122"
+    "24.2.8 8 20241128"
+    "24.1.7 7 20240829"
+    "24.0.9 9 20240606"
+    "23.3.6 6 20240215"
+    "23.2.1 1 20230928"
 # The following won't build due to:
 #  Run-time dependency libdrm found: NO (tried pkgconfig)
 #  meson.build:1760:13: ERROR: Dependency "libdrm" not found, tried pkgconfig
-#    "23.1.9 9 20231004 1.3.246"
-#    "23.0.4 4 20230530 1.3.238"
-#    "22.3.7 7 20230308 1.3.230"
-#    "22.2.4 4 20221116 1.3.224"
-#    "22.1.7 7 20220922 1.3.211"
-#    "22.0.5 5 20220601 1.3.204"
-#    "21.3.9 9 20220608 1.2.195"
-#    "21.2.6 6 20211124 1.2.182"
+#    "23.1.9 9 20231004"
+#    "23.0.4 4 20230530"
+#    "22.3.7 7 20230308"
+#    "22.2.4 4 20221116"
+#    "22.1.7 7 20220922"
+#    "22.0.5 5 20220601"
+#    "21.3.9 9 20220608"
+#    "21.2.6 6 20211124"
 )
 
 # Required packages for building the turnip driver
@@ -90,7 +90,7 @@ curl $ndkver --output "$ndkdir".zip &> /dev/null
 # Loop through each version set
 for version in "${versions[@]}"; do
     # Extract version values
-    read -r MESA_VER PKG_VER DATE VULKAN_VER <<< "$version"
+    read -r MESA_VER PKG_VER DATE <<< "$version"
 
     echo -e "${green}Building Mesa $MESA_VER...${nocolor}"
 
@@ -139,6 +139,21 @@ for version in "${versions[@]}"; do
     export OBJDUMP=llvm-objdump
     export OBJCOPY=llvm-objcopy
     export LDFLAGS="-fuse-ld=lld"
+
+    # Retrieve Vulkan Version
+    vkxml="src/vulkan/registry/vk.xml"
+    VULKAN_VER=""
+    if [[ -f "$vkxml" ]]; then
+        # Extract patch (VK_HEADER_VERSION)
+        vkpatch=$(grep -A 1 '<type api="vulkan" category="define"' "$vkxml" | grep -oP '#define <name>VK_HEADER_VERSION</name>\s*\K\d+')
+    
+        # Extract variant, major, minor from VK_HEADER_VERSION_COMPLETE
+        read vkvariant vkmajor vkminor <<< $(grep -A 1 '<type api="vulkan" category="define"' "$vkxml" | grep -oP '#define <name>VK_HEADER_VERSION_COMPLETE</name> <type>VK_MAKE_API_VERSION</type>\(\K[0-9]+,\s*[0-9]+,\s*[0-9]+' | sed 's/,//g')
+
+        if [[ -n "$vkpatch" && -n "$vkmajor" && -n "$vkminor" ]]; then
+            VULKAN_VER="${vkmajor}.${vkminor}.${vkpatch}"
+        fi
+    fi
 
     # Create a temporary directory for fake cc/c++
     mkdir -p /tmp/fake-cc
