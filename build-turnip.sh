@@ -6,10 +6,10 @@ API_VER="28"
 NDK_VER="28b"
 DEV_VER=25.1
 ISODATE=$(date +"%Y%m%d")
-export CFLAGS="$CFLAGS -O3"
-export CXXFLAGS="$CXXFLAGS -O3"
+export CFLAGS="-O3"
+export CXXFLAGS="-O3"
 
-# Version sets: MESA_VER PKG_VER DATE VULKAN_VER
+# Version sets: MESA_VER PKG_VER DATE
 versions=(
     "DEVEL $DEV_VER staging-$DEV_VER 1.4"
     "HEAD main $ISODATE"
@@ -154,6 +154,8 @@ for version in "${versions[@]}"; do
             VULKAN_VER="${vkmajor}.${vkminor}.${vkpatch}"
         fi
     fi
+
+    echo "Vulkan Version: $VULKAN_VER" $'\n'
 
     # Create a temporary directory for fake cc/c++
     mkdir -p /tmp/fake-cc
@@ -313,7 +315,7 @@ name=Freedreno Turnip Vulkan Driver
 version=v$MESA_VER
 versionCode=$DATE
 author=RTIANGHA
-description=Turnip is an open-source vulkan driver for devices with Adreno 6xx-7xx GPUs.
+description=Turnip is an open-source vulkan driver for devices with Adreno 6xx-8xx GPUs.
 updateJson=https://raw.githubusercontent.com/rtiangha/Mesa-Turnip-Builder/refs/heads/stable/update.json
 EOF
 
@@ -389,7 +391,7 @@ else
  cat <<EOF > "$META_FILE"
 {
   "schemaVersion": 1,
-  "name": "Freedreno Turnip Driver v$MESA_VER",
+  "name": "Freedreno Turnip Driver $MESA_VER",
   "description": "Compiled using Android NDK r$NDK_VER with $CXXFLAGS",
   "author": "rtiangha",
   "packageVersion": "$PKG_VER",
