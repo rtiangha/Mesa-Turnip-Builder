@@ -3,7 +3,7 @@
 # Fixed versions and configurations
 DROID_VER="9"
 API_VER="28"
-NDK_VER="28b"
+NDK_VER="29-beta1"
 DEV_VER=25.1
 ISODATE=$(date +"%Y%m%d")
 export CFLAGS="-O3"
