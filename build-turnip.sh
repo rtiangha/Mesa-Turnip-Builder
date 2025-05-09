@@ -6,32 +6,32 @@ API_VER="28"
 NDK_VER="28b"
 DEV_VER=25.1
 ISODATE=$(date +"%Y%m%d")
-export CFLAGS="$CFLAGS -O3"
-export CXXFLAGS="$CXXFLAGS -O3"
+export CFLAGS="-O3"
+export CXXFLAGS="-O3"
 
-# Version sets: MESA_VER PKG_VER DATE VULKAN_VER
+# Version sets: MESA_VER PKG_VER DATE
 versions=(
-    "DEVEL $DEV_VER staging-$DEV_VER 1.4"
-    "HEAD main $ISODATE"
-    "25.1.0 0 20250507"
-    "25.0.5 5 20250430"
-    "24.3.4 4 20250122"
-    "24.2.8 8 20241128"
-    "24.1.7 7 20240829"
-    "24.0.9 9 20240606"
-    "23.3.6 6 20240215"
-    "23.2.1 1 20230928"
 # The following won't build due to:
 #  Run-time dependency libdrm found: NO (tried pkgconfig)
 #  meson.build:1760:13: ERROR: Dependency "libdrm" not found, tried pkgconfig
-#    "23.1.9 9 20231004"
-#    "23.0.4 4 20230530"
-#    "22.3.7 7 20230308"
-#    "22.2.4 4 20221116"
-#    "22.1.7 7 20220922"
-#    "22.0.5 5 20220601"
-#    "21.3.9 9 20220608"
 #    "21.2.6 6 20211124"
+#    "21.3.9 9 20220608"
+#    "22.0.5 5 20220601"
+#    "22.1.7 7 20220922"
+#    "22.2.4 4 20221116"
+#    "22.3.7 7 20230308"
+#    "23.0.4 4 20230530"
+#    "23.1.9 9 20231004"
+    "23.2.1 1 20230928"
+    "23.3.6 6 20240215"
+    "24.0.9 9 20240606"
+    "24.1.7 7 20240829"
+    "24.2.8 8 20241128"
+    "24.3.4 4 20250122"
+    "25.0.5 5 20250430"
+    "25.1.0 0 20250507"
+    "STAGING $DEV_VER staging-$DEV_VER 1.4"
+    "HEAD main $ISODATE"
 )
 
 # Required packages for building the turnip driver
@@ -85,7 +85,7 @@ clear
 
 # Download Android NDK
 echo "Downloading Android NDK r$NDK_VER..." $'\n'
-curl $ndkver --output "$ndkdir".zip &> /dev/null
+curl $ndkver --output "$ndkdir".zip
 
 # Loop through each version set
 for version in "${versions[@]}"; do
@@ -98,7 +98,7 @@ for version in "${versions[@]}"; do
     if [[ "$MESA_VER" == "HEAD" ]]; then
         mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip"
         mesadir="mesa-main"
-    elif [[ "$MESA_VER" == "DEVEL" ]]; then
+    elif [[ "$MESA_VER" == "STAGING" ]]; then
         mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/staging/$PKG_VER/mesa-staging-$PKG_VER.zip"
         mesadir="mesa-staging-$PKG_VER"
     else 
@@ -119,7 +119,7 @@ for version in "${versions[@]}"; do
 
     # Download Mesa source
     echo "Downloading Mesa $MESA_VER source ..." $'\n'
-    curl $mesaver --output "$mesadir".zip &> /dev/null
+    curl $mesaver --output "$mesadir".zip 
 
     clear
 
@@ -154,6 +154,8 @@ for version in "${versions[@]}"; do
             VULKAN_VER="${vkmajor}.${vkminor}.${vkpatch}"
         fi
     fi
+
+    echo "Vulkan Version: $VULKAN_VER" $'\n'
 
     # Create a temporary directory for fake cc/c++
     mkdir -p /tmp/fake-cc
@@ -310,10 +312,10 @@ EOF
 cat <<EOF >"module.prop"
 id=turnip-mesa
 name=Freedreno Turnip Vulkan Driver
-version=v$MESA_VER
+version=$MESA_VER
 versionCode=$DATE
 author=RTIANGHA
-description=Turnip is an open-source vulkan driver for devices with Adreno 6xx-7xx GPUs.
+description=Turnip is an open-source vulkan driver for devices with Adreno 6xx-8xx GPUs.
 updateJson=https://raw.githubusercontent.com/rtiangha/Mesa-Turnip-Builder/refs/heads/stable/update.json
 EOF
 
@@ -389,7 +391,7 @@ else
  cat <<EOF > "$META_FILE"
 {
   "schemaVersion": 1,
-  "name": "Freedreno Turnip Driver v$MESA_VER",
+  "name": "Freedreno Turnip Driver $MESA_VER",
   "description": "Compiled using Android NDK r$NDK_VER with $CXXFLAGS",
   "author": "rtiangha",
   "packageVersion": "$PKG_VER",
