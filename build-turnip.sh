@@ -157,6 +157,15 @@ for version in "${versions[@]}"; do
 
     echo "Vulkan Version: $VULKAN_VER" $'\n'
 
+    # Retrieve and verify Mesa Version
+    version_file="VERSION"
+    CODE_VER=""
+    if [[ -f "$version_file" ]]; then
+       read CODE_VER < "$version_file"
+    fi
+
+    echo "Mesa Version: $CODE_VER" $'\n'
+
     # Create a temporary directory for fake cc/c++
     mkdir -p /tmp/fake-cc
 
@@ -311,7 +320,7 @@ EOF
 
 cat <<EOF >"module.prop"
 id=turnip-mesa
-name=Freedreno Turnip Vulkan Driver
+name=Freedreno Turnip Vulkan Driver $CODE_VER
 version=$MESA_VER
 versionCode=$DATE
 author=RTIANGHA
@@ -392,7 +401,7 @@ else
 {
   "schemaVersion": 1,
   "name": "Freedreno Turnip Driver $MESA_VER",
-  "description": "Compiled using Android NDK r$NDK_VER with $CXXFLAGS",
+  "description": "Mesa $CODE_VER compiled using Android NDK r$NDK_VER with $CXXFLAGS",
   "author": "rtiangha",
   "packageVersion": "$PKG_VER",
   "vendor": "Mesa3D",
