@@ -4,24 +4,24 @@
 DROID_VER="9"
 API_VER="28"
 NDK_VER="28b"
-DEV_VER=25.1
+DEV_VER="25.1"
+DRM_VER="2.4.124"
 ISODATE=$(date +"%Y%m%d")
+PKG_CONFIG_PATH_ORIG=$PKG_CONFIG_PATH
 export CFLAGS="-O3"
 export CXXFLAGS="-O3"
 
 # Version sets: MESA_VER PKG_VER DATE
 versions=(
-# The following won't build due to:
-#  Run-time dependency libdrm found: NO (tried pkgconfig)
-#  meson.build:1760:13: ERROR: Dependency "libdrm" not found, tried pkgconfig
+# The following will not compile with modern Android NDKs
 #    "21.2.6 6 20211124"
 #    "21.3.9 9 20220608"
 #    "22.0.5 5 20220601"
 #    "22.1.7 7 20220922"
-#    "22.2.4 4 20221116"
-#    "22.3.7 7 20230308"
-#    "23.0.4 4 20230530"
-#    "23.1.9 9 20231004"
+    "22.2.4 4 20221116"
+    "22.3.7 7 20230308"
+    "23.0.4 4 20230530"
+    "23.1.9 9 20231004"
     "23.2.1 1 20230928"
     "23.3.6 6 20240215"
     "24.0.9 9 20240606"
@@ -212,6 +212,33 @@ echo "Generating build files..." $'\n'
 
 # The fredreno-kmds flag does not exist in Mesa < 23.2.0
 if [ "$(printf "%s\n%s" "$MESA_VER" "23.2.0" | sort -V | head -n1)" != "23.2.0" ]; then
+    # libdrm
+    echo "Downloading libdrm..."
+    drmver="https://gitlab.freedesktop.org/mesa/drm/-/archive/libdrm-$DRM_VER/drm-libdrm-$DRM_VER.zip"
+    drmdir="drm-libdrm-$DRM_VER"
+    curl $drmver --output "$drmdir".zip &> /dev/null
+    ls -l
+    echo "Extracting libdrm-$DRM_VER..."
+    unzip "$drmdir".zip
+
+    echo "Building libdrm-$DRM_VER..."
+    cd $drmdir
+    mkdir -p build-libdrm
+
+CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-libdrm \
+    --cross-file "$workdir/$mesadir/android-aarch64.txt" \
+    --native-file "$workdir/$mesadir/native.txt" \
+    --prefix="$workdir/$ndkdir/toolchains/llvm/prebuilt/linux-x86_64" \
+    -Dbuildtype=release \
+    -Db_lto=true &> meson_log
+
+    ninja -C build-libdrm/ install
+    cd ..
+
+    echo "Building libdrm-$DRM_VER complete"
+
+    export PKG_CONFIG_PATH=$workdir/$ndkdir/toolchains/llvm/prebuilt/linux-x86_64/lib/pkgconfig:$PKG_CONFIG_PATH
+
 CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-android-aarch64 \
     --cross-file "$workdir/$mesadir/android-aarch64.txt" \
     --native-file "$workdir/$mesadir/native.txt" \
@@ -440,6 +467,9 @@ EOF
     cd ..
     rm -rf $workdir
 fi
+
+# Restore original PKG_CONFIG_PATH
+export PKG_CONFIG_PATH=$PKG_CONFIG_PATH_ORIG
 done
 
 echo -e "${green}All builds completed. Artifacts are in the artifacts directory.${nocolor}" $'\n'
