@@ -214,8 +214,8 @@ echo "Generating build files..." $'\n'
 if [ "$(printf "%s\n%s" "$MESA_VER" "23.2.0" | sort -V | head -n1)" != "23.2.0" ]; then
     # libdrm
     echo "Downloading libdrm..."
-    drmver="https://gitlab.freedesktop.org/mesa/drm/-/archive/libdrm-$DRM_VER/drm-libdrm-$DRM_VER.zip"
-    drmdir="drm-libdrm-$DRM_VER"
+    drmver="https://gitlab.freedesktop.org/mesa/libdrm/-/archive/libdrm-$DRM_VER/libdrm-libdrm-$DRM_VER.zip"
+    drmdir="libdrm-libdrm-$DRM_VER"
     curl $drmver --output "$drmdir".zip &> /dev/null
     ls -l
     echo "Extracting libdrm-$DRM_VER..."
