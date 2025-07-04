@@ -32,7 +32,9 @@ jobs:
       - name: Remove System Clang
         run: sudo apt autoremove clang-16 clang-format-16 clang-tidy-16 clang-17 clang-format-17 clang-tidy-17 clang-18 clang-format-18 clang-tidy-18 -y
       - name: Update deb repositories 
-        run: sudo apt-get update 
+        run: |
+          sudo add-apt-repository ppa:savoury1/build-tools
+          sudo apt-get update 
       - name: Install New Packages
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
