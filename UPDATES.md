@@ -1,4 +1,4 @@
-**July 7 , 2025**: Updated Mesa to v25.1.5 Stable  
+**July 18 , 2025**: Updated Mesa to v25.1.6 Stable  
 
 **WARNING :KernelSU might not load turnip driver , if so please PM me on telegram >> @VEKTOR_87**
 
