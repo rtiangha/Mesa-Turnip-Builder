@@ -1,8 +1,8 @@
-**July 18 , 2025**: Updated Mesa to v25.1.6 Stable  
+**July 22 , 2025**: Updated Mesa to v25.2.0 RC1 
 
-**WARNING :KernelSU might not load turnip driver , if so please PM me on telegram >> @VEKTOR_87**
+**Magisk and KernelSU supported**
 
-**Android 13 users wont be able to install this build , Requires Android 14 to install**
+**Requires Android 15 to install**
 
 1. Updated Android NDK to 29 
 2. Built using Thin LTO + O2
