@@ -319,7 +319,7 @@ else
   "packageVersion": "3",
   "vendor": "Mesa3D",
   "driverVersion": "Vulkan 1.4.311",
-  "minApi": 34,
+  "minApi": 35,
   "libraryName": "vulkan.turnip.so"
 }
 EOF
