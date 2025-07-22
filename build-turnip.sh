@@ -318,7 +318,7 @@ else
   "author": "v3kt0r-87",
   "packageVersion": "3",
   "vendor": "Mesa3D",
-  "driverVersion": "Vulkan 1.4.311",
+  "driverVersion": "Vulkan 1.4.318",
   "minApi": 35,
   "libraryName": "vulkan.turnip.so"
 }
