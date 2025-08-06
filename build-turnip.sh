@@ -30,6 +30,7 @@ versions=(
     "24.3.4 4 20250122"
     "25.0.7 7 20250528"
     "25.1.7 7 20250730"
+    "25.2.0 0 20250806"
     "STAGING $DEV_VER staging-$DEV_VER 1.4"
     "HEAD main $ISODATE"
 )
