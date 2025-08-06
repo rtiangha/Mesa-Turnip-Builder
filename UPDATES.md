@@ -1,8 +1,8 @@
-**July 25 , 2025**: Updated Mesa to v25.2.0 RC2 
+**August , 2025**: Updated Mesa to v25.2.0 STABLE 
 
 **Magisk and KernelSU supported**
 
-**Requires Android 15 to install**
+**Requires Android 14 to install**
 
 1. Updated Android NDK to 29 
 2. Built using Thin LTO + O2
