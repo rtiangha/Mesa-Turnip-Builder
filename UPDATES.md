@@ -1,4 +1,4 @@
-**August , 2025**: Updated Mesa to v25.2.0 STABLE 
+**August 22, 2025**: Updated Mesa to v25.2.1 STABLE 
 
 **Magisk and KernelSU supported**
 
