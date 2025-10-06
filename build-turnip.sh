@@ -3,7 +3,7 @@
 # Fixed versions and configurations
 DROID_VER="9"
 API_VER="28"
-NDK_VER="28c"
+NDK_VER="29"
 DEV_VER="25.2"
 DRM_VER="2.4.125"
 ISODATE=$(date +"%Y%m%d")
