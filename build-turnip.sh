@@ -6,7 +6,7 @@ red='\033[0;31m'
 nocolor='\033[0m'
 
 # Define Android NDK version and download URL
-ndkdir="android-ndk-r29-beta4"
+ndkdir="android-ndk-r29"
 ndkver="https://dl.google.com/android/repository/${ndkdir}-linux.zip"
 sdkver="34"
 
