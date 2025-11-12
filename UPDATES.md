@@ -1,4 +1,10 @@
-**October 03, 2025**: Updated Mesa to v25.2.4 STABLE 
+**October 13, 2025**: Updated Mesa to v25.3.0 
+
+
+Turnip drivers from now on will be delayed as i longer have time / interest to maintain this.
+
+I will try to keep this project up to date as much as i can.
+
 
 **Magisk and KernelSU supported**
 
