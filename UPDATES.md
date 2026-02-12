@@ -1,5 +1,4 @@
-**December 11, 2025**: Updated Mesa to v25.3.1
-
+**February 12, 2026**: Updated Mesa to v26.0.0
 
 Turnip drivers from now on will be delayed as i longer have time / interest to maintain this.
 
