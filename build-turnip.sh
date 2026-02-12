@@ -232,7 +232,7 @@ CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-lib
     --native-file "$workdir/$mesadir/native.txt" \
     --prefix="$workdir/$ndkdir/toolchains/llvm/prebuilt/linux-x86_64" \
     -Dbuildtype=release \
-    -Db_lto=true &> meson_log
+    -Db_lto=false &> meson_log
 
     ninja -C build-libdrm/ install
     cd ..
@@ -250,7 +250,7 @@ CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-and
     -Dandroid-stub=true \
     -Dgallium-drivers= \
     -Dvulkan-drivers=freedreno \
-    -Db_lto=true \
+    -Db_lto=false \
     -Degl=disabled \
     -Dstrip=true &> $workdir/meson_log
 else
@@ -264,7 +264,7 @@ CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-and
     -Dgallium-drivers= \
     -Dvulkan-drivers=freedreno \
     -Dfreedreno-kmds=kgsl \
-    -Db_lto=true \
+    -Db_lto=false \
     -Degl=disabled \
     -Dstrip=true
 fi
