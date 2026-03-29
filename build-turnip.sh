@@ -315,7 +315,7 @@ else
 {
   "schemaVersion": 1,
   "name": "Freedreno Turnip Driver 26.0.0",
-  "description": "Compiled using Android NDK 29",
+  "description": "Compiled using Android NDK 30",
   "author": "v3kt0r-87",
   "packageVersion": "3",
   "vendor": "Mesa3D",
