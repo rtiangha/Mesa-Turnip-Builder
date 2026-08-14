@@ -35,12 +35,27 @@ for deps_chk in $deps; do
 
     [ -t 1 ] && sleep 0.25 || true
     if command -v "$deps_chk" >/dev/null 2>&1; then
-        echo -e "$green - $deps_chk found $nocolor"
+        if [ "$deps_chk" = "meson" ]; then
+            meson_ver=$(meson --version 2>/dev/null || echo "0")
+            if [ "$(printf '%s\n' "1.4.0" "$meson_ver" | sort -V | head -n1)" != "1.4.0" ]; then
+                echo -e "$red - meson found ($meson_ver), but >= 1.4.0 is required. Upgrade with: pip3 install --upgrade --break-system-packages meson $nocolor"
+                deps_missing=1
+            else
+                echo -e "$green - meson found ($meson_ver) $nocolor"
+            fi
+        else
+            echo -e "$green - $deps_chk found $nocolor"
+        fi
     else
         echo -e "$red - $deps_chk not found, cannot continue. $nocolor"
         deps_missing=1
     fi
 done
+
+if [ "${deps_missing:-0}" = "1" ]; then
+    echo -e "$red Missing or outdated dependencies. Please install them and try again. $nocolor"
+    exit 1
+fi
 
 [ -t 1 ] && sleep 1 || true
 [ -t 1 ] && clear || true

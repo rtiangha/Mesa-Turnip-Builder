@@ -68,7 +68,7 @@ Check the [Notes](#notes-) section below for more info.
 ## Notes 📝
 
 - **Important:** Android 15 (SDK 35) is needed for full Vulkan 1.4 support.
-- Please use **Ubuntu 24.04** or any Linux distribution based on it.
+- Please use **Ubuntu 26.04** or any Linux distribution based on it.
 - **Make sure you have a stable internet connection before proceeding** (use a VPN if your ISP throttles your speed).
 - Make sure your Android version is `14` or above, otherwise you won't be able to install.
 - Make sure you have the latest **Magisk / KernelSU** installed before proceeding.

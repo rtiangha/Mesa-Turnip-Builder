@@ -17,7 +17,7 @@ on:
 jobs:
   build:
     name: Build Turnip Driver
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Checkout Repository
@@ -32,7 +32,6 @@ jobs:
             lld \
             llvm \
             ccache \
-            meson \
             ninja-build \
             patchelf \
             unzip \
@@ -46,6 +45,7 @@ jobs:
             python3-pip \
             python3-mako \
             python3-yaml
+          pip3 install --upgrade --break-system-packages meson mako packaging pyyaml
 
       - name: Run Turnip Build Script
         run: |
