@@ -1,16 +1,16 @@
 **Aug 14, 2026**: Updated Mesa to v26.2.0
 
-Turnip drivers from now on will be delayed as i longer have time / interest to maintain this.
+Turnip drivers from now on will be delayed as I no longer have time / interest to maintain this.
 
-I will try to keep this project up to date as much as i can.
+I will try to keep this project up to date as much as I can.
 
 **Magisk and KernelSU supported**
 
 **Requires Android 14 to install**
 
 1. Updated Android NDK to 30 beta2
-2. LTO support removed to fix issues when building mesa 26.2.0
-3. Added uninstall script and minor improvements  
-4. Updated minimum Magisk version to v25.0  
-5. Now supports auto-updates via Magisk / KernelSU  
-6. GPU Cache Cleaner is now included in MAGISK / KSU builds (no manual cleanup needed)  
+2. LTO support removed to fix issues when building Mesa 26.2.0
+3. Added uninstall script and minor improvements
+4. Updated minimum Magisk version to v25.0
+5. Now supports auto-updates via Magisk / KernelSU
+6. GPU Cache Cleaner is now included in MAGISK / KSU builds (no manual cleanup needed)

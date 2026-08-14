@@ -1,7 +1,6 @@
-
 <div align="right">
   <details>
-    <summary >🌐 Language</summary>
+    <summary>🌐 Language</summary>
     <div>
       <div align="center">
         <a href="https://openaitx.github.io/view.html?user=v3kt0r-87&project=Mesa-Turnip-Builder&lang=en">English</a>
@@ -24,7 +23,7 @@
         | <a href="https://openaitx.github.io/view.html?user=v3kt0r-87&project=Mesa-Turnip-Builder&lang=tr">Türkçe</a>
         | <a href="https://openaitx.github.io/view.html?user=v3kt0r-87&project=Mesa-Turnip-Builder&lang=vi">Tiếng Việt</a>
         | <a href="https://openaitx.github.io/view.html?user=v3kt0r-87&project=Mesa-Turnip-Builder&lang=id">Bahasa Indonesia</a>
-        | <a href="https://openaitx.github.io/view.html?user=v3kt0r-87&project=Mesa-Turnip-Builder&lang=as">অসমীয়া</
+        | <a href="https://openaitx.github.io/view.html?user=v3kt0r-87&project=Mesa-Turnip-Builder&lang=as">অসমীয়া</a>
       </div>
     </div>
   </details>
@@ -32,63 +31,52 @@
 
 # Freedreno Turnip Builder 
 
-## Stable / RC Mesa  + Android NDK <br> Use this build for stability ✅ 
+## Stable / RC Mesa + Android NDK <br> Use this build for stability ✅ 
 
-Simple Bash script that aims to build a turnip driver for **MAGISK/KERNELSU or EMULATOR**
+Simple Bash script that aims to build a Turnip driver for **MAGISK / KERNELSU or EMULATORS**.
 
-# What's New : 🔥
+## What's New 🔥
 
-**[Click Here](//github.com/v3kt0r-87/Mesa-Turnip-Builder/blob/main/UPDATES.md)**
+**[Click Here](UPDATES.md)**
  
 ## How to Build Locally 🤔
 
-Simply clone this repo and use **BASH** to build 
+Simply clone this repo and use **Bash** to build:
 
-``` 
+```bash
 bash build-turnip.sh
-``` 
+```
 
-Check [Notes](//github.com/v3kt0r-87/Mesa-Turnip-Builder?tab=readme-ov-file#notes-) Section below for more info 
+Check the [Notes](#notes-) section below for more info.
 
-# App Compatibility
+## App Compatibility
 
-| Name                                            | Status | Notes                                                                                                                     |
-|-------------------------------------------------|--------|---------------------------------------------------------------------------------------------------------------------------|
-| 3D Mark                                         | ✅     |                                                                                                                           |
-| GRID™ Autosport                                 | ✅     | Tested by [V3KT0R-87](//github.com/V3KT0R-87)<br>Working.(60fps)                                                          |
-| SpongeBob SquarePants Battle For Bikini Bottom  | ✅     | Tested by [V3KT0R-87](//github.com/V3KT0R-87)<br>Working,(30 - 45 fps)                                                    |
-| Carx Street                                     | ✅     | Tested by [V3KT0R-87](//github.com/V3KT0R-87)<br>Working,(30 - 45 fps)                                                    |
-| Dolphin Emulator                                | ✅     | Tested by [V3KT0R-87](//github.com/V3KT0R-87)<br>Working.                                                                 |
-| PPSSPP                                          | ✅     | Tested by [V3KT0R-87](//github.com/V3KT0R-87)<br>Working.                                                                 |
-| EggNS                                           | ✅     | Tested by [V3KT0R-87](//github.com/V3KT0R-87)<br>Working.                                                                 |
-| ANGLE (com.android.angle)                       | ✅     |                                                                                                                           |
-| GTA Triology-Definitive Edition                 | ✅     | Tested by [@Ryder_7777](//t.me/Ryder_7777)<br>Working,Poor Performance.                                                   |
-| Call of Duty WarZone Mobile                     | ✅     | Tested by [@SeniorFurry](//t.me/SeniorFurry)<br>Working,Texture Bugs,Poor Performance.                                    |
-| Hitman Blood Money : Reprisal                   | ✅     | Tested by [@V3KT0R-87](//github.com/V3KT0R-87)<br>Working, 60 fps Medium Graphics.                                        |
+| Name                                            | Status | Notes                                                                                        |
+|-------------------------------------------------|--------|----------------------------------------------------------------------------------------------|
+| 3DMark                                          | ✅     |                                                                                              |
+| GRID™ Autosport                                 | ✅     | Tested by [@V3KT0R-87](https://github.com/V3KT0R-87)<br>Working (60 fps)                     |
+| SpongeBob SquarePants Battle For Bikini Bottom  | ✅     | Tested by [@V3KT0R-87](https://github.com/V3KT0R-87)<br>Working (30 - 45 fps)                |
+| CarX Street                                     | ✅     | Tested by [@V3KT0R-87](https://github.com/V3KT0R-87)<br>Working (30 - 45 fps)                |
+| Dolphin Emulator                                | ✅     | Tested by [@V3KT0R-87](https://github.com/V3KT0R-87)<br>Working                              |
+| PPSSPP                                          | ✅     | Tested by [@V3KT0R-87](https://github.com/V3KT0R-87)<br>Working                              |
+| EggNS                                           | ✅     | Tested by [@V3KT0R-87](https://github.com/V3KT0R-87)<br>Working                              |
+| ANGLE (com.android.angle)                       | ✅     |                                                                                              |
+| GTA Trilogy - Definitive Edition                | ✅     | Tested by [@Ryder_7777](https://t.me/Ryder_7777)<br>Working (poor performance)               |
+| Call of Duty: Warzone Mobile                    | ✅     | Tested by [@SeniorFurry](https://t.me/SeniorFurry)<br>Working (texture bugs, poor performance) |
+| Hitman: Blood Money – Reprisal                  | ✅     | Tested by [@V3KT0R-87](https://github.com/V3KT0R-87)<br>Working (60 fps, medium graphics)     |
 
+## Notes 📝
 
-### NOTES :
+- **Important:** Android 15 (SDK 35) is needed for full Vulkan 1.4 support.
+- Please use **Ubuntu 24.04** or any Linux distribution based on it.
+- **Make sure you have a stable internet connection before proceeding** (use a VPN if your ISP throttles your speed).
+- Make sure your Android version is `14` or above, otherwise you won't be able to install.
+- Make sure you have the latest **Magisk / KernelSU** installed before proceeding.
 
-### Important : Android 15 (SDK 35) is needed for Full Vulkan 1.4 support
+## Credits 🙏
 
-## Please use Ubuntu 24.04 or any other distro based on it
-
-**MAKE SURE YOU HAVE A STABLE INTERNET CONNECTION BEFORE PROCEEDING**
-
-**USE A VPN IF YOUR ISP THROTTLES YOUR SPEED**
-
-Make sure your Android version is ``14`` or above otherwise you wont be able to install 
-
-Make sure you have the latest **MAGISK / KERNELSU** before installing
-
-
-# CREDITS 🙏
-
-### This project wont be possible without the help of these amazing people below :
+This project wouldn't be possible without the help of these amazing people:
  
- **[@MrMiy4mo](//github.com/ilhan-athn7)** for creating the turnip build script and letting me modify and learn from it. 
- 
- **[@Mesa3D Team](//gitlab.freedesktop.org/mesa/mesa)** for giving us such amazing drivers so that we can further improve our device performance.
-
- **[Adreno Driver Support Group](//t.me/adreno_driver)** for testing and sharing benchmarks.
-
+- **[@MrMiy4mo](https://github.com/ilhan-athn7)** for creating the Turnip build script and letting me modify and learn from it.
+- **[@Mesa3D Team](https://gitlab.freedesktop.org/mesa/mesa)** for giving us such amazing drivers so that we can further improve our device performance.
+- **[Adreno Driver Support Group](https://t.me/adreno_driver)** for testing and sharing benchmarks.
