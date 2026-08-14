@@ -1,0 +1,59 @@
+name: Build Mesa Turnip Driver
+
+on:
+  push:
+    branches:
+      - stable
+      - main
+    paths:
+      - 'build-turnip.sh'
+      - '.github/workflows/build.yml'
+  pull_request:
+    branches:
+      - stable
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Turnip Driver
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install Build Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            clang \
+            lld \
+            llvm \
+            ccache \
+            meson \
+            ninja-build \
+            patchelf \
+            unzip \
+            curl \
+            flex \
+            bison \
+            zip \
+            glslang-tools \
+            pkg-config \
+            python3 \
+            python3-pip \
+            python3-mako \
+            python3-yaml
+
+      - name: Run Turnip Build Script
+        run: |
+          bash build-turnip.sh
+
+      - name: Upload Driver Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Turnip-Driver-Artifacts
+          path: turnip_workdir/*.zip
+          if-no-files-found: error

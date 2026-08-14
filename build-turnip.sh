@@ -22,33 +22,28 @@ DRIVER_FILE="vulkan.turnip.so"          # Output Vulkan Driver (emulator)
 META_FILE="meta.json"                   # Metadata
 
 ZIP_FILE_MAGISK="Turnip-26.2.0-MAGISK-KSU.zip"
-ZIP_FILE_EMULATOR="Turnip-26-2.0-EMULATOR.zip" 
+ZIP_FILE_EMULATOR="Turnip-26.2.0-EMULATOR.zip" 
 
 # List of required packages to build the Turnip driver
-deps="meson ninja patchelf unzip curl pip flex bison zip glslang"
-clear
+deps="meson ninja patchelf unzip curl flex bison zip clang ccache pkg-config"
+[ -t 1 ] && clear || true
 
 echo "Checking system for required dependencies..."
 
 # Check for required dependencies 
 for deps_chk in $deps; do
 
-    sleep 0.5
+    [ -t 1 ] && sleep 0.25 || true
     if command -v "$deps_chk" >/dev/null 2>&1; then
         echo -e "$green - $deps_chk found $nocolor"
     else
         echo -e "$red - $deps_chk not found, cannot continue. $nocolor"
         deps_missing=1
-
-        if [ "$deps_missing" == "1" ]; then
-            echo "Missing dependencies, installing them now..." $'\n'
-           # sudo apt install -y meson-1.5 patchelf unzip curl python3-pip flex bison zip python3-mako glslang-tools vulkan-tools python-is-python3 &> /dev/null
-        fi
     fi
 done
 
-sleep 1.5
-clear
+[ -t 1 ] && sleep 1 || true
+[ -t 1 ] && clear || true
 
 # Clean work directory if it exists
 if [ -d "$workdir" ]; then
@@ -62,18 +57,18 @@ mkdir -p "$workdir" && cd "$_"
 
 # Download Android NDK
 echo "Downloading Android NDK..." $'\n'
-curl $ndkver --output "$ndkdir".zip &> /dev/null
+curl -sSL --fail "$ndkver" --output "$ndkdir".zip
 
-clear
+[ -t 1 ] && clear || true
 
 echo "Extracting Android NDK..." $'\n'
 unzip "$ndkdir".zip &> /dev/null
 
 # Download Mesa source
 echo "Downloading Latest Mesa source ..." $'\n'
-curl $mesaver --output "$mesadir".zip &> /dev/null
+curl -sSL --fail "$mesaver" --output "$mesadir".zip
 
-clear
+[ -t 1 ] && clear || true
 
 echo "Extracting Mesa source..." $'\n'
 unzip "$mesadir".zip &> /dev/null
@@ -112,7 +107,7 @@ c = ['ccache', '$ndk_bin/aarch64-linux-android$sdkver-clang', '-Wno-deprecated-d
 cpp = ['ccache', '$ndk_bin/aarch64-linux-android$sdkver-clang++', '--start-no-unused-arguments', '-fno-exceptions', '-fno-unwind-tables', '-fno-asynchronous-unwind-tables', '-static-libstdc++', '--end-no-unused-arguments', '-Wno-error=c++11-narrowing', '-Wno-deprecated-declarations', '-Wno-gnu-alignof-expression']
 c_ld = '$ndk_bin/ld.lld'
 cpp_ld = '$ndk_bin/ld.lld'
-strip = '$ndk_bin/aarch64-linux-android-strip'
+strip = '$ndk_bin/llvm-strip'
 pkg-config = ['env', 'PKG_CONFIG_LIBDIR=NDKDIR/pkg-config', '/usr/bin/pkg-config']
 
 [host_machine]
@@ -137,7 +132,7 @@ endian = 'little'
 EOF
 
 echo "Generating build files..." $'\n'
-CC=clang CXX=clang++ meson setup build-android-aarch64 \
+if ! CC=clang CXX=clang++ meson setup build-android-aarch64 \
     --cross-file "$workdir/$mesadir/android-aarch64.txt" \
     --native-file "$workdir/$mesadir/native.txt" \
     -Dbuildtype=release \
@@ -148,11 +143,19 @@ CC=clang CXX=clang++ meson setup build-android-aarch64 \
     -Dvulkan-drivers=freedreno \
     -Dfreedreno-kmds=kgsl \
     -Degl=disabled \
-    -Dstrip=true &> $workdir/meson_log
+    -Dstrip=true &> "$workdir/meson_log"; then
+    echo -e "$red Meson setup failed! Log: $nocolor"
+    cat "$workdir/meson_log"
+    exit 1
+fi
 
 # Compile build files using Ninja
 echo "Compiling build files..." $'\n'
-ninja -C build-android-aarch64 &> "$workdir"/ninja_log
+if ! ninja -C build-android-aarch64 &> "$workdir"/ninja_log; then
+    echo -e "$red Ninja compilation failed! Log: $nocolor"
+    cat "$workdir/ninja_log"
+    exit 1
+fi
 
 echo "Using patchelf to match .so name..." $'\n'
 cp "$workdir"/"$mesadir"/build-android-aarch64/src/freedreno/vulkan/libvulkan_freedreno.so "$workdir"
@@ -160,7 +163,7 @@ cd "$workdir"
 
 
 
-if ! [ -a libvulkan_freedreno.so ]; then
+if ! [ -f libvulkan_freedreno.so ]; then
     echo -e "$red Build failed! libvulkan_freedreno.so not found $nocolor" && exit 1
 fi
 
@@ -298,7 +301,7 @@ if [[ ! -f "$workdir/$ZIP_FILE_MAGISK" ]]; then
     echo -e "${red}Error: Zipping driver files failed.${nocolor}"
     exit 1
 else
-    clear
+    [ -t 1 ] && clear || true
 
     echo " Its time to create Turnip build for EMULATOR"
 
@@ -329,7 +332,7 @@ EOF
         exit 1
     fi
 
-    clear
+    [ -t 1 ] && clear || true
 
     echo -e "$green Build Finished :). $nocolor" $'\n'
     echo -e "$green-All done, you can take your drivers from here;$nocolor" $'\n'
