@@ -6,13 +6,13 @@ red='\033[0;31m'
 nocolor='\033[0m'
 
 # Define Android NDK version and download URL
-ndkdir="android-ndk-r30-beta1"
+ndkdir="android-ndk-r30-beta2"
 ndkver="https://dl.google.com/android/repository/${ndkdir}-linux.zip"
 sdkver="34"
 
 # Define Mesa version and download URL
-mesadir="mesa-mesa-26.1.1"
-mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-26.1.1/mesa-mesa-26.1.1.zip?ref_type=tags"
+mesadir="mesa-mesa-26.2.0"
+mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/mesa-26.2.0/mesa-mesa-26.2.0.zip?ref_type=tags"
 
 # Define working directories
 workdir="$(pwd)/turnip_workdir"         # Base directory for all operations
@@ -21,8 +21,8 @@ magiskdir="$workdir/turnip_module"      # Directory to create the Magisk module
 DRIVER_FILE="vulkan.turnip.so"          # Output Vulkan Driver (emulator)
 META_FILE="meta.json"                   # Metadata
 
-ZIP_FILE_MAGISK="Turnip-26.1.1-MAGISK-KSU.zip"
-ZIP_FILE_EMULATOR="Turnip-26-1.1-EMULATOR.zip" 
+ZIP_FILE_MAGISK="Turnip-26.2.0-MAGISK-KSU.zip"
+ZIP_FILE_EMULATOR="Turnip-26-2.0-EMULATOR.zip" 
 
 # List of required packages to build the Turnip driver
 deps="meson ninja patchelf unzip curl pip flex bison zip glslang"
@@ -42,7 +42,7 @@ for deps_chk in $deps; do
 
         if [ "$deps_missing" == "1" ]; then
             echo "Missing dependencies, installing them now..." $'\n'
-            sudo apt install -y meson-1.5 patchelf unzip curl python3-pip flex bison zip python3-mako glslang-tools vulkan-tools python-is-python3 &> /dev/null
+           # sudo apt install -y meson-1.5 patchelf unzip curl python3-pip flex bison zip python3-mako glslang-tools vulkan-tools python-is-python3 &> /dev/null
         fi
     fi
 done
@@ -231,8 +231,8 @@ EOF
 cat <<EOF >"module.prop"
 id=turnip-mesa
 name=Freedreno Turnip Vulkan Driver STABLE
-version=v26.1.1
-versionCode=20260531
+version=v26.2.0
+versionCode=20260814
 author=V3KT0R-87
 description=Turnip is an open-source vulkan driver for devices with Adreno 6xx-7xx GPUs.
 updateJson=https://raw.githubusercontent.com/v3kt0r-87/Mesa-Turnip-Builder/refs/heads/stable/update.json
@@ -312,12 +312,12 @@ else
  cat <<EOF > "$META_FILE"
 {
   "schemaVersion": 1,
-  "name": "Freedreno Turnip Driver 26.1.1",
+  "name": "Freedreno Turnip Driver 26.2.0",
   "description": "Compiled using Android NDK 30",
   "author": "v3kt0r-87",
   "packageVersion": "3",
   "vendor": "Mesa3D",
-  "driverVersion": "Vulkan 1.4",
+  "driverVersion": "Vulkan 1.3/4",
   "minApi": 34,
   "libraryName": "vulkan.turnip.so"
 }
