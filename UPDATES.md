@@ -1,4 +1,4 @@
-**May 31, 2026**: Updated Mesa to v26.1.1
+**Aug 14, 2026**: Updated Mesa to v26.2.0
 
 Turnip drivers from now on will be delayed as i longer have time / interest to maintain this.
 
@@ -8,8 +8,8 @@ I will try to keep this project up to date as much as i can.
 
 **Requires Android 14 to install**
 
-1. Updated Android NDK to 30 beta
-2. LTO support removed to fix issues when building mesa 26.1.1
+1. Updated Android NDK to 30 beta2
+2. LTO support removed to fix issues when building mesa 26.2.0
 3. Added uninstall script and minor improvements  
 4. Updated minimum Magisk version to v25.0  
 5. Now supports auto-updates via Magisk / KernelSU  
