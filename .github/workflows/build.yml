@@ -55,5 +55,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Turnip-Driver-Artifacts
-          path: turnip_workdir/*.zip
+          path: |
+            turnip_workdir/Turnip-*.zip
+            turnip_workdir/vulkan.turnip.so
+            turnip_workdir/meson_log
+            turnip_workdir/ninja_log
           if-no-files-found: error

@@ -78,6 +78,7 @@ curl -sSL --fail "$ndkver" --output "$ndkdir".zip
 
 echo "Extracting Android NDK..." $'\n'
 unzip "$ndkdir".zip &> /dev/null
+rm -f "$ndkdir".zip
 
 # Download Mesa source
 echo "Downloading Latest Mesa source ..." $'\n'
@@ -87,6 +88,7 @@ curl -sSL --fail "$mesaver" --output "$mesadir".zip
 
 echo "Extracting Mesa source..." $'\n'
 unzip "$mesadir".zip &> /dev/null
+rm -f "$mesadir".zip
 cd $mesadir
 
 # Set NDK Clang bin directory
@@ -350,12 +352,13 @@ EOF
     [ -t 1 ] && clear || true
 
     echo -e "$green Build Finished :). $nocolor" $'\n'
-    echo -e "$green-All done, you can take your drivers from here;$nocolor" $'\n'
+    echo -e "$green-All done, you can take your drivers from here:$nocolor" $'\n'
     echo -e "Magisk-KSU Module : $workdir/$ZIP_FILE_MAGISK" $'\n' 
     echo -e "Emulator : $workdir/$ZIP_FILE_EMULATOR" $'\n'
+    echo -e "Turnip Driver : $workdir/$DRIVER_FILE" $'\n'
 
     # Cleanup 
-    rm "$DRIVER_FILE" "$META_FILE"
+    rm -f "$META_FILE"
 
     # Clean up fake-cc directory and symbolic links on exit
     rm -rf "$fakecc_dir"
