@@ -214,8 +214,8 @@ EOF
 
 echo "Generating build files..." $'\n'
 
-# The fredreno-kmds flag does not exist in Mesa < 23.2.0
-if [ "$(printf "%s\n%s" "$MESA_VER" "23.2.0" | sort -V | head -n1)" != "23.2.0" ]; then
+# The fredreno-kmds flag does not exist in Mesa < 23.1.0
+if [ "$(printf "%s\n%s" "$MESA_VER" "23.1.0" | sort -V | head -n1)" != "23.1.0" ]; then
     # libdrm
     echo "Downloading libdrm..."
     drmver="https://gitlab.freedesktop.org/mesa/libdrm/-/archive/libdrm-$DRM_VER/libdrm-libdrm-$DRM_VER.zip"
@@ -252,6 +252,7 @@ CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-and
     -Dandroid-stub=true \
     -Dgallium-drivers= \
     -Dvulkan-drivers=freedreno \
+    -Dfreedreno-kgsl=true \
     -Db_lto=false \
     -Degl=disabled \
     -Dstrip=true &> $workdir/meson_log
