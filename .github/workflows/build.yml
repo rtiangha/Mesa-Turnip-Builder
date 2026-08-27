@@ -50,6 +50,9 @@ jobs:
           DROID_KEY_ALIAS: ${{ secrets.DROID_KEY_ALIAS }}
           DROID_KEYSTORE_PASS: ${{ secrets.DROID_KEYSTORE_PASS }}
           DROID_KEY_PASS: ${{ secrets.DROID_KEY_PASS }}
+      - name: Clean up artifacts
+        run: |
+          rm artifacts/*KSU*
       - name: Upload
         uses: actions/upload-artifact@v7
         with:

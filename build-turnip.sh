@@ -1,14 +1,14 @@
 #!/bin/bash -e
 
 # Fixed versions and configurations
-DROID_VER="9"
-API_VER="28"
+DROID_VER="15"
+API_VER="35"
 NDK_VER="29"
 DRM_VER="2.4.134"
 ISODATE=$(date +"%Y%m%d")
 PKG_CONFIG_PATH_ORIG=$PKG_CONFIG_PATH
-export CFLAGS="-O3"
-export CXXFLAGS="-O3"
+export CFLAGS="-O3 -march=armv8.2-a+crypto+dotprod+fp16+rcpc"
+export CXXFLAGS="-O3 -march=armv8.2-a+crypto+dotprod+fp16+rcpc"
 
 # Version sets: MESA_VER PKG_VER DATE
 versions=(
@@ -17,14 +17,14 @@ versions=(
 #    "21.3.9 9 20220608"
 #    "22.0.5 5 20220601"
 #    "22.1.7 7 20220922"
-    "22.2.4 4 20221116"
-    "22.3.7 7 20230308"
-    "23.0.4 4 20230530"
-    "23.1.9 9 20231004"
-    "23.2.1 1 20230928"
-    "23.3.6 6 20240215"
-    "24.0.9 9 20240606"
-    "24.1.7 7 20240829"
+#    "22.2.4 4 20221116"
+#    "22.3.7 7 20230308"
+#    "23.0.4 4 20230530"
+#    "23.1.9 9 20231004"
+#    "23.2.1 1 20230928"
+#    "23.3.6 6 20240215"
+#    "24.0.9 9 20240606"
+#    "24.1.7 7 20240829"
     "24.2.8 8 20241128"
     "24.3.4 4 20250122"
     "25.0.7 7 20250528"
