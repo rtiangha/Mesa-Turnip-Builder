@@ -149,10 +149,10 @@ for version in "${versions[@]}"; do
     VULKAN_VER=""
     if [[ -f "$vkxml" ]]; then
         # Extract patch (VK_HEADER_VERSION)
-        vkpatch=$(grep -A 1 '<type api="vulkan" category="define"' "$vkxml" | grep -oP '#define <name>VK_HEADER_VERSION</name>\s*\K\d+')
-    
+        vkpatch=$(grep -A 1 '<type api="vulkan[,"]' "$vkxml" | grep -oP '#define <name>VK_HEADER_VERSION</name>\s*\K\d+')
+
         # Extract variant, major, minor from VK_HEADER_VERSION_COMPLETE
-        read vkvariant vkmajor vkminor <<< $(grep -A 1 '<type api="vulkan" category="define"' "$vkxml" | grep -oP '#define <name>VK_HEADER_VERSION_COMPLETE</name> <type>VK_MAKE_API_VERSION</type>\(\K[0-9]+,\s*[0-9]+,\s*[0-9]+' | sed 's/,//g')
+        read vkvariant vkmajor vkminor <<< $(grep -A 1 '<type api="vulkan[,"]' "$vkxml" | grep -oP '#define <name>VK_HEADER_VERSION_COMPLETE</name> <type>VK_MAKE_API_VERSION</type>\(\K[0-9]+,\s*[0-9]+,\s*[0-9]+' | sed 's/,//g')
 
         if [[ -n "$vkpatch" && -n "$vkmajor" && -n "$vkminor" ]]; then
             VULKAN_VER="${vkmajor}.${vkminor}.${vkpatch}"
@@ -437,7 +437,7 @@ else
   "author": "rtiangha",
   "packageVersion": "$PKG_VER",
   "vendor": "Mesa3D",
-  "driverVersion": "Vulkan $VULKAN_VER",
+  "driverVersion": "$VULKAN_VER",
   "minApi": $API_VER,
   "libraryName": "vulkan.turnip.so"
 }
