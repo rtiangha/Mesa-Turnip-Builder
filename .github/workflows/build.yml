@@ -10,7 +10,7 @@ on:
 
 jobs:
   android:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-26.04
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       CCACHE_COMPILERCHECK: content
@@ -29,12 +29,6 @@ jobs:
           key: ${{ runner.os }}-android-${{ github.sha }}
           restore-keys: |
             ${{ runner.os }}-android-
-      - name: Remove System Clang
-        run: sudo apt autoremove clang-16 clang-format-16 clang-tidy-16 clang-17 clang-format-17 clang-tidy-17 clang-18 clang-format-18 clang-tidy-18 -y
-      - name: Update deb repositories 
-        run: |
-          sudo add-apt-repository ppa:savoury1/build-tools
-          sudo apt-get update 
       - name: Install New Packages
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
@@ -62,7 +56,7 @@ jobs:
           path: artifacts
           compression-level: 9
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: [android]
     if: ${{ startsWith(github.ref, 'refs/tags/') }}
     steps:
