@@ -3,7 +3,7 @@
 # Fixed versions and configurations
 DROID_VER="15"
 API_VER="35"
-NDK_VER="29"
+NDK_VER="30-beta3"
 DRM_VER="2.4.134"
 ISODATE=$(date +"%Y%m%d")
 PKG_CONFIG_PATH_ORIG=$PKG_CONFIG_PATH
