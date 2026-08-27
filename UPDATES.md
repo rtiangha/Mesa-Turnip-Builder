@@ -1,10 +1,7 @@
-**April ,7 2025**: Updated Mesa to v25.0.3  
+**August, 20 2026**: Updated Mesa to v26.2.1
 
-**Requires Android 14 and above to work properly**  
-**Android 13 users can still install**
-
-1. Updated Android NDK to 28.0 Stable 
-2. Built using Full LTO + O2
+1. Updated Android NDK to 29.0 Stable 
+2. Built using -O3
 3. Added uninstall script and minor improvements  
 4. Updated minimum Magisk version to v25.0  
 5. Now supports auto-updates via Magisk / KernelSU  
