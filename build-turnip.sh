@@ -4,7 +4,6 @@
 DROID_VER="9"
 API_VER="28"
 NDK_VER="29"
-DEV_VER="25.3"
 DRM_VER="2.4.134"
 ISODATE=$(date +"%Y%m%d")
 PKG_CONFIG_PATH_ORIG=$PKG_CONFIG_PATH
@@ -34,7 +33,7 @@ versions=(
     "25.3.6 6 20260219"
     "26.0.8 8 20260527"
     "26.1.8 8 20260819"
-    "26.2.1 1 20260820"
+    "26.2.2 2 20260902"
     "HEAD main $ISODATE"
 )
 
