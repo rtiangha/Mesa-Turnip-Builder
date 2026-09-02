@@ -263,6 +263,7 @@ CC=clang CXX=clang++ CFLAGS="$CFLAGS" CXXFLAGS="$CXXFLAGS" meson setup build-and
     -Dplatforms=android \
     -Dplatform-sdk-version=$API_VER \
     -Dandroid-stub=true \
+    -Dandroid-libbacktrace=disabled \
     -Dgallium-drivers= \
     -Dvulkan-drivers=freedreno \
     -Dfreedreno-kmds=kgsl \
