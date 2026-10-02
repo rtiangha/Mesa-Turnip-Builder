@@ -1,6 +1,6 @@
-**September, 02 2026**: Updated Mesa to v26.2.2
+**October, 01 2026**: Updated Mesa to v26.2.4
 
-1. Updated Android NDK to 29.0 Stable 
+1. Updated Android NDK to 30.0 Stable 
 2. Built using -O3
 3. Added uninstall script and minor improvements  
 4. Updated minimum Magisk version to v25.0  
