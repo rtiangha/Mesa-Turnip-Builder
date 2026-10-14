@@ -1,6 +1,6 @@
 {
-    "version": "v26.2.4",
-    "versionCode": 20261001,
-    "zipUrl": "https://github.com/rtiangha/Mesa-Turnip-Builder/releases/download/v2026.10.01/Turnip-26.2.4-MAGISK-KSU.zip",
+    "version": "v26.2.5",
+    "versionCode": 20261014,
+    "zipUrl": "https://github.com/rtiangha/Mesa-Turnip-Builder/releases/download/v2026.10.14/Turnip-26.2.5-MAGISK-KSU.zip",
     "changelog": "https://raw.githubusercontent.com/rtiangha/Mesa-Turnip-Builder/refs/heads/stable/UPDATES.md"
   }
