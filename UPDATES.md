@@ -1,4 +1,4 @@
-**November 08, 2026**: Updated Mesa to v26.3.0
+**November 18, 2026**: Updated Mesa to v26.3.1
 
 1. Updated Android NDK to 30.0 Stable 
 2. Built using -O3
