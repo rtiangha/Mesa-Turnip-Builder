@@ -1,14 +1,14 @@
 #!/bin/bash -e
 
 # Fixed versions and configurations
-DROID_VER="9"
-API_VER="28"
+DROID_VER="15"
+API_VER="35"
 NDK_VER="30"
 DRM_VER="2.4.134"
 ISODATE=$(date +"%Y%m%d")
 PKG_CONFIG_PATH_ORIG=$PKG_CONFIG_PATH
-export CFLAGS="-O3"
-export CXXFLAGS="-O3"
+export CFLAGS="-O3 -march=armv8.2-a+crypto+dotprod+fp16+rcpc"
+export CXXFLAGS="-O3 -march=armv8.2-a+crypto+dotprod+fp16+rcpc"
 
 # Version sets: MESA_VER PKG_VER DATE
 versions=(
@@ -17,14 +17,14 @@ versions=(
 #    "21.3.9 9 20220608"
 #    "22.0.5 5 20220601"
 #    "22.1.7 7 20220922"
-    "22.2.4 4 20221116"
-    "22.3.7 7 20230308"
-    "23.0.4 4 20230530"
-    "23.1.9 9 20231004"
-    "23.2.1 1 20230928"
-    "23.3.6 6 20240215"
-    "24.0.9 9 20240606"
-    "24.1.7 7 20240829"
+#    "22.2.4 4 20221116"
+#    "22.3.7 7 20230308"
+#    "23.0.4 4 20230530"
+#    "23.1.9 9 20231004"
+#    "23.2.1 1 20230928"
+#    "23.3.6 6 20240215"
+#    "24.0.9 9 20240606"
+#    "24.1.7 7 20240829"
     "24.2.8 8 20241128"
     "24.3.4 4 20250122"
     "25.0.7 7 20250528"
@@ -36,10 +36,40 @@ versions=(
     "26.2.7 7 20261111"
     "26.3.1 1 20261118"
     "HEAD main $ISODATE"
+    # ARMSX2 fork (bmdhacks/armsx2-turnip): both resolve at build time, no edit per release
+    "ARMSX2-RELEASE 1 $ISODATE"
+    "ARMSX2-HEAD 1 $ISODATE"
 )
 
+# SINGLE_VERSION (from the workflow_dispatch input mesa_version): build
+# just one version on demand, e.g. 26.3.2, without editing this script.
+# It may be a version already in the list above (HEAD, ARMSX2-RELEASE,
+# ARMSX2-HEAD, or any listed Mesa version) or a new X.Y.Z release, which
+# is built with the patch number as package version and today's date.
+# A single version overrides the build_set choice.
+if [[ -n "${SINGLE_VERSION:-}" ]]; then
+    SINGLE_VERSION="${SINGLE_VERSION// /}"
+    found=""
+    for version in "${versions[@]}"; do
+        read -r v _ _ <<< "$version"
+        if [[ "$v" == "$SINGLE_VERSION" ]]; then
+            found="$version"
+            break
+        fi
+    done
+    if [[ -n "$found" ]]; then
+        versions=("$found")
+    elif [[ "$SINGLE_VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        versions=("$SINGLE_VERSION ${SINGLE_VERSION##*.} $ISODATE")
+    else
+        echo -e "$red Unknown version '$SINGLE_VERSION': not in the versions list and not an X.Y.Z release $nocolor" && exit 1
+    fi
+    BUILD_SET="all"
+    echo "Single-version run: building $SINGLE_VERSION"
+fi
+
 # Required packages for building the turnip driver
-deps="meson ninja patchelf unzip curl pip flex bison zip"
+deps="meson ninja patchelf unzip curl pip flex bison zip git"
 
 # Android NDK
 ndkver="https://dl.google.com/android/repository/android-ndk-r$NDK_VER-linux.zip"
@@ -82,7 +112,7 @@ done
 # Install missing dependencies automatically
 if [ "$deps_missing" == "1" ]; then
     echo "Missing dependencies, installing them now..." $'\n'
-    sudo apt install -y meson patchelf unzip curl python3-pip flex bison zip python3-mako python-is-python3 &> /dev/null
+    sudo apt install -y meson patchelf unzip curl python3-pip flex bison zip python3-mako python-is-python3 git &> /dev/null
 fi
 
 clear
@@ -96,12 +126,46 @@ for version in "${versions[@]}"; do
     # Extract version values
     read -r MESA_VER PKG_VER DATE <<< "$version"
 
+    # BUILD_SET limits a manual (workflow_dispatch) run to one set of
+    # drivers: all (default), stock-only (upstream Mesa) or armsx2-only
+    # (the ARMSX2 fork). Push/PR runs build everything.
+    case "${BUILD_SET:-all}" in
+        armsx2-only) [[ "$MESA_VER" != ARMSX2-* ]] && continue ;;
+        stock-only)  [[ "$MESA_VER" == ARMSX2-* ]] && continue ;;
+    esac
+
     echo -e "${green}Building Mesa $MESA_VER...${nocolor}"
 
     # Mesa
     if [[ "$MESA_VER" == "HEAD" ]]; then
         mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip"
         mesadir="mesa-main"
+    elif [[ "$MESA_VER" == "ARMSX2-RELEASE" ]]; then
+        # Newest axfl<N>-<NNN> release tag, resolved at build time so a new
+        # release is picked up with no edit. (Currently axfl3-005. The -aXX
+        # tags are pre-release builds and are skipped by the pattern.)
+        ARMSX2_REPO="https://github.com/bmdhacks/armsx2-turnip.git"
+        ARMSX2_TAG=$(git ls-remote --tags "$ARMSX2_REPO" 'refs/tags/axfl[0-9]-*' \
+            | grep -v '\^{}' | awk -F/ '{print $NF}' | sort -V | tail -n 1)
+        if [[ -z "$ARMSX2_TAG" ]]; then
+            echo -e "$red Could not resolve the latest ARMSX2 release tag from $ARMSX2_REPO $nocolor" && exit 1
+        fi
+        echo "ARMSX2 release tag: $ARMSX2_TAG"
+        MESA_VER="ARMSX2-$ARMSX2_TAG"
+        PKG_VER=$((10#${ARMSX2_TAG##*-}))
+        mesaver="https://github.com/bmdhacks/armsx2-turnip/archive/refs/tags/$ARMSX2_TAG.zip"
+        mesadir="armsx2-turnip-$ARMSX2_TAG"
+    elif [[ "$MESA_VER" == "ARMSX2-HEAD" ]]; then
+        # Whatever armsx2/main points at when this build runs.
+        ARMSX2_REPO="https://github.com/bmdhacks/armsx2-turnip.git"
+        ARMSX2_SHA=$(git ls-remote "$ARMSX2_REPO" 'refs/heads/armsx2/main' | awk '{print $1}')
+        if [[ -z "$ARMSX2_SHA" ]]; then
+            echo -e "$red Could not resolve armsx2/main HEAD from $ARMSX2_REPO $nocolor" && exit 1
+        fi
+        echo "ARMSX2 HEAD: $ARMSX2_SHA"
+        MESA_VER="ARMSX2-HEAD-${ARMSX2_SHA:0:12}"
+        mesaver="https://github.com/bmdhacks/armsx2-turnip/archive/refs/heads/armsx2/main.zip"
+        mesadir="armsx2-turnip-armsx2-main"
     elif [[ "$MESA_VER" == "STAGING" ]]; then
         mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/staging/$PKG_VER/mesa-staging-$PKG_VER.zip"
         mesadir="mesa-staging-$PKG_VER"
@@ -123,7 +187,7 @@ for version in "${versions[@]}"; do
 
     # Download Mesa source
     echo "Downloading Mesa $MESA_VER source ..." $'\n'
-    curl $mesaver --output "$mesadir".zip 
+    curl -L $mesaver --output "$mesadir".zip 
 
     clear
 
