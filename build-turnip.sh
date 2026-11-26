@@ -36,6 +36,12 @@ versions=(
     "26.2.7 7 20261111"
     "26.3.1 1 20261118"
     "HEAD main $ISODATE"
+    # Upstream Mesa main + the 8-bit SSBO proof-of-concept patch
+    # (a6xx-gen4-storage-8bit-poc.patch in the repo root). Builds the
+    # patch on top of whatever main is at build time; the patch step
+    # below stops the run if it no longer applies cleanly, so a drifted
+    # patch can never silently produce an unpatched driver.
+    "HEAD-8BIT-POC main $ISODATE"
     # ARMSX2 fork (bmdhacks/armsx2-turnip): both resolve at build time, no edit per release
     "ARMSX2-RELEASE 1 $ISODATE"
     "ARMSX2-HEAD 1 $ISODATE"
@@ -81,6 +87,9 @@ red='\033[0;31m'
 nocolor='\033[0m'
 
 workdir="$(pwd)/turnip_workdir"
+# Repo root (the script runs from the repo checkout): the PoC patch file
+# lives here, next to this script.
+REPO_DIR="$(pwd)"
 magiskdir="$workdir/turnip_module"
 
 # Turnip variables
@@ -125,6 +134,9 @@ curl $ndkver --output "$ndkdir".zip
 for version in "${versions[@]}"; do
     # Extract version values
     read -r MESA_VER PKG_VER DATE <<< "$version"
+    # Reset per build: only HEAD-8BIT-POC sets this below.
+    APPLY_POC_PATCH=0
+    unset CCACHE_DISABLE
 
     # BUILD_SET limits a manual (workflow_dispatch) run to one set of
     # drivers: all (default), stock-only (upstream Mesa) or armsx2-only
@@ -140,6 +152,19 @@ for version in "${versions[@]}"; do
     if [[ "$MESA_VER" == "HEAD" ]]; then
         mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip"
         mesadir="mesa-main"
+    elif [[ "$MESA_VER" == "HEAD-8BIT-POC" ]]; then
+        # Upstream Mesa main plus the PoC patch (applied below, after
+        # extraction). Same source as HEAD; the package name is what
+        # differs, so the two builds stay distinct.
+        mesaver="https://gitlab.freedesktop.org/mesa/mesa/-/archive/main/mesa-main.zip"
+        mesadir="mesa-main"
+        APPLY_POC_PATCH=1
+        # Bypass ccache for this build. Run 45741604772 produced a
+        # byte-identical-to-stock "PoC" driver even though the patch was
+        # applied and the header regenerated, which points at a stale
+        # ccache object for freedreno_dev_info.c.o. Compiling this one
+        # build fresh costs ~a minute and removes that failure mode.
+        export CCACHE_DISABLE=1
     elif [[ "$MESA_VER" == "ARMSX2-RELEASE" ]]; then
         # Newest axfl<N>-<NNN> release tag, resolved at build time so a new
         # release is picked up with no edit. (Currently axfl3-005. The -aXX
@@ -194,6 +219,44 @@ for version in "${versions[@]}"; do
     echo "Extracting Mesa $MESA_VER source..." $'\n'
     unzip "$mesadir".zip &> /dev/null
     cd $mesadir
+
+    # Proof-of-concept 8-bit SSBO patch (HEAD-8BIT-POC only). The patch
+    # file lives in the repo root next to this script. Stop loudly if
+    # it is missing or no longer applies cleanly to this Mesa HEAD,
+    # rather than silently building an unpatched driver.
+    if [[ "$APPLY_POC_PATCH" == "1" ]]; then
+        POC_PATCH="$REPO_DIR/a6xx-gen4-storage-8bit-poc.patch"
+        if [[ ! -f "$POC_PATCH" ]]; then
+            echo -e "$red PoC patch not found at $POC_PATCH $nocolor" && exit 1
+        fi
+        # Use GNU `patch`, NOT `git apply`: `git apply` run inside this
+        # repo silently SKIPS the patch (stderr "Skipped patch ...",
+        # exit 0) because the extracted Mesa files are untracked by
+        # this repo's index -- it only applies to tracked files. That
+        # is what produced a stock driver in the first three PoC runs.
+        # `patch -p1` applies to the working tree regardless of git.
+        # Both the dry-run and the real apply are guarded: a failure
+        # now stops the build instead of echoing "Applied" anyway.
+        if ! patch -p1 --dry-run < "$POC_PATCH" > /dev/null; then
+            echo -e "$red PoC patch does not apply cleanly to this Mesa HEAD -- rebase it and retry $nocolor" && exit 1
+        fi
+        if ! patch -p1 < "$POC_PATCH"; then
+            echo -e "$red PoC patch failed to apply $nocolor" && exit 1
+        fi
+        echo -e "${green}Applied PoC patch: $POC_PATCH ${nocolor}"
+        # Confirm the patch actually took effect in the source: a previous
+        # run applied cleanly and built fresh yet produced a stock driver,
+        # so verify the a6xx_gen4 block really has storage_8bit now.
+        # This catches a wrong/empty patch file or a git apply that
+        # silently did nothing, before spending ~90 s on a build.
+        # NOTE: cwd is already inside $mesadir here (see `cd $mesadir`
+        # above), so the path is relative -- do NOT prepend $mesadir
+        # again (that was a bug in the v2 script: it looked for
+        # mesa-main/mesa-main/src/... which does not exist).
+        if ! python3 "$REPO_DIR/verify_8bit_poc_source.py" "src/freedreno/common/freedreno_devices.py"; then
+            echo -e "$red PoC source check failed (see the verify script output above) $nocolor" && exit 1
+        fi
+    fi
 
     # Set NDK r$NDK_VER Clang bin directory
     ndk_bin="$workdir/$ndkdir/toolchains/llvm/prebuilt/linux-x86_64/bin"
@@ -343,6 +406,17 @@ ninja -C build-android-aarch64
 
 echo "Using patchelf to match .so name..." $'\n'
 cp "$workdir"/"$mesadir"/build-android-aarch64/src/freedreno/vulkan/libvulkan_freedreno.so "$workdir"
+
+# PoC only: verify the patch actually made it into the built driver
+# before packaging it. Run 45741604772 silently produced a
+# byte-identical-to-stock "PoC" driver, so fail loudly here rather than
+# shipping a driver that does not have the fix. verify_8bit_poc.py lives
+# in the repo root next to the patch file.
+if [[ "$APPLY_POC_PATCH" == "1" ]]; then
+    if ! python3 "$REPO_DIR/verify_8bit_poc.py" "$workdir/libvulkan_freedreno.so"; then
+        echo -e "$red PoC verification failed: storage_8bit is not set in the built driver -- not packaging it $nocolor" && exit 1
+    fi
+fi
 cd "$workdir"
 
 
