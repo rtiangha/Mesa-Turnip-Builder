@@ -25,17 +25,17 @@ versions=(
 #    "23.3.6 6 20240215"
 #    "24.0.9 9 20240606"
 #    "24.1.7 7 20240829"
-    "24.2.8 8 20241128"
-    "24.3.4 4 20250122"
-    "25.0.7 7 20250528"
-    "25.1.9 9 20250827"
-    "25.2.8 8 20251204"
-    "25.3.6 6 20260219"
-    "26.0.8 8 20260527"
-    "26.1.8 8 20260819"
-    "26.2.7 7 20261111"
-    "26.3.1 1 20261118"
-    "HEAD main $ISODATE"
+#    "24.2.8 8 20241128"
+#    "24.3.4 4 20250122"
+#    "25.0.7 7 20250528"
+#    "25.1.9 9 20250827"
+#    "25.2.8 8 20251204"
+#    "25.3.6 6 20260219"
+#    "26.0.8 8 20260527"
+#    "26.1.8 8 20260819"
+#    "26.2.7 7 20261111"
+#    "26.3.1 1 20261118"
+#    "HEAD main $ISODATE"
     # Upstream Mesa main + the 8-bit SSBO proof-of-concept patch
     # (a6xx-gen4-storage-8bit-poc.patch in the repo root). Builds the
     # patch on top of whatever main is at build time; the patch step
@@ -43,8 +43,8 @@ versions=(
     # patch can never silently produce an unpatched driver.
     "HEAD-8BIT-POC main $ISODATE"
     # ARMSX2 fork (bmdhacks/armsx2-turnip): both resolve at build time, no edit per release
-    "ARMSX2-RELEASE 1 $ISODATE"
-    "ARMSX2-HEAD 1 $ISODATE"
+#    "ARMSX2-RELEASE 1 $ISODATE"
+#    "ARMSX2-HEAD 1 $ISODATE"
 )
 
 # SINGLE_VERSION (from the workflow_dispatch input mesa_version): build
