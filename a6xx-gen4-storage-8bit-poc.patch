@@ -1,0 +1,49 @@
+diff --git a/src/freedreno/common/freedreno_devices.py b/src/freedreno/common/freedreno_devices.py
+index 2f98dcf..7d49619 100644
+--- a/src/freedreno/common/freedreno_devices.py
++++ b/src/freedreno/common/freedreno_devices.py
+@@ -210,20 +210,44 @@ a6xx_gen3 = GPUProps(
+     )
+ 
+ a6xx_gen4 = GPUProps(
+         reg_size_vec4 = 64,
+         # Blob limits it to 128 but we hang with 128
+         instr_cache_size = 127,
+         supports_multiview_mask = True,
+         has_z24uint_s8uint = True,
+         tess_use_shared = True,
+         storage_16bit = True,
++        # PROOF OF CONCEPT (2026-11-25, local only, NOT for upstream):
++        # enable the a7xx 8-bit SSBO treatment on a6xx gen4 (660/662/663/
++        # 690/643). On a660, 8-bit SSBO loads/stores use the single R16
++        # descriptor via isam, so the hardware scales byte addresses x2
++        # (treats them as 16-bit indices) -- see the byte-exact self-test
++        # evidence (get_rows 3968/4096 wrong, set_rows 868/1088 wrong).
++        # Setting this flips all the coordinated sites together:
++        #  - an R8_UINT descriptor is allocated per storage buffer
++        #    (tu_descriptor_set.cc, tu_device.cc storageBufferDescriptorSize)
++        #  - 8-bit SSBO accesses are bumped to it (tu_shader.cc)
++        #  - 8-bit SSBO loads avoid isam for the ldib fallback
++        #    (ir3_compiler_nir.c) with max imm offset 127
++        #    (ir3_nir_lower_io_offsets.c).
++        # SIDE EFFECT: this also advertises VK_KHR_8bit_storage (and the
++        # 8-bit storage features) on these chips. The proper upstream fix
++        # would split the SSBO-descriptor handling from the advertised
++        # feature; for a local PoC this is acceptable (PocketPal uses
++        # SSBOs, not 8-bit uniforms/push constants).
++        # NOTE: this hunk is anchored on the a6xx_gen4 header because
++        # a6xx_gen3 has identical lines here -- a patch with only the
++        # surrounding lines lands on gen3 in some trees (the armsx2
++        # fork, Mesa 26.3.1 and other releases) and leaves FD660
++        # unflipped.
++        storage_8bit = True,
+         has_tex_filter_cubic = True,
+         has_separate_chroma_filter = True,
+         has_sample_locations = True,
+         has_cp_reg_write = False,
+         has_8bpp_ubwc = False,
+         has_lpac = True,
+         has_legacy_pipeline_shading_rate = True,
+         has_getfiberid = True,
+         has_movs = True,
+         has_dp2acc = True,
